@@ -9,7 +9,7 @@ class CreateDirectory:
         if not os.path.exists(f'{self.base_dir}'):
             os.mkdir(self.base_dir)
 
-    def create_subdirectory(self, file_hash):
+    def create_subdirectory(self, file_hash: str):
         self.create_directory()
         subdir = file_hash[:2]
         print(subdir)
