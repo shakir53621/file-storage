@@ -3,7 +3,7 @@ import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile, HTTPException, status
 
 
 class AbstractFileManager(ABC):
@@ -30,15 +30,14 @@ class FileManager(AbstractFileManager):
 
     def find_path_to_file(self, directory: str, file_name: str) -> str:
         if not os.path.exists(directory):
-            raise NotADirectoryError
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Директория не найдена")
 
         path_to_file = os.path.join(directory, file_name)
 
         if not os.path.exists(path_to_file):
-            raise HTTPException(status_code=404, detail="Файл не найден")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Файл не найден")
 
         return path_to_file
 
-    def delete_file(self, path_to_file: str) -> dict:
+    def delete_file(self, path_to_file: str) -> None:
         os.remove(path_to_file)
-        return {"message": f"Файл '{path_to_file}' удален"}
