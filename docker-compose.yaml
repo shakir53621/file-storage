@@ -29,7 +29,7 @@ services:
     env_file:
       - .env.prod
     depends_on:
-      nri-db:
+      file-storage-db:
         condition: service_healthy
     command:
       - /bin/sh
@@ -39,7 +39,7 @@ services:
         python helpers/data_filler_from_sql.py
         uvicorn app.main:app --host=0.0.0.0 --port=8000
     networks:
-      acsfer:
+      storage:
     ports:
       - "8001:8000"
 
@@ -48,5 +48,5 @@ volumes:
     name: file-storage-db-volume
 
 networks:
-  file-storage:
+  storage:
     name: storage
