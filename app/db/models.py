@@ -15,6 +15,6 @@ class Users(Base):
 class UserFiles(Base):
     __tablename__ = 'user_files'
 
-    file_id: Mapped[int]
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    file_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
     file_hash: Mapped[str]
