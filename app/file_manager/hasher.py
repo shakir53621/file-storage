@@ -20,4 +20,4 @@ class SHA256Hasher(AbstractHasher):
 
 class SHA1Hasher(AbstractHasher):
     def hash_str(self, string: str) -> str:
-        return hashlib.sha1(string.encode('utf-8'))  .hexdigest()
+        return hashlib.sha1(string.encode('utf-8')).hexdigest()
