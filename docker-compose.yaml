@@ -5,7 +5,7 @@ services:
     container_name: file-storage-db
     image: postgres:16.0
     env_file:
-      - .env.db
+      - .env
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "${DB_NAME}", "-U", "${DB_USER}" ]
       interval: 5s
