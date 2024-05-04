@@ -1,6 +1,7 @@
 import os
 
 from fastapi import UploadFile
+from starlette.responses import FileResponse
 
 from app.file_manager.directory_manager import AbstractDirectoryManager
 from app.file_manager.file_manager import AbstractFileManager
@@ -9,10 +10,10 @@ from app.file_manager.hasher import AbstractHasher
 
 class FileCreatorService:
     def __init__(
-        self,
-        hasher: AbstractHasher,
-        directory_manager: AbstractDirectoryManager,
-        file_manager: AbstractFileManager,
+            self,
+            hasher: AbstractHasher,
+            directory_manager: AbstractDirectoryManager,
+            file_manager: AbstractFileManager,
     ) -> None:
         self._hasher = hasher
         self._directory_manager = directory_manager
@@ -31,16 +32,34 @@ class FileCreatorService:
 
 
 class FileDownloaderService:
-    def __init__(self) -> None:
-        ...
+    def __init__(self,
+                 file_manager: AbstractFileManager) -> None:
+        self._file_manager = file_manager
 
-    def download_file(self):
-        ...
+    def download_file(self, store_root: str, file_name: str):
+        """TODO: Исправить код"""
+        path_to_directory = os.path.join(store_root, file_name[:2])
+        path_to_directory1 = self._file_manager.find_path_to_file(path_to_directory, file_name)
+
+        return FileResponse(
+            path=path_to_directory1, filename=file_name,
+            media_type='multipart/form-data'
+        )
 
 
 class FileDeleterService:
-    def __init__(self) -> None:
-        ...
+    def __init__(self,
+                 file_manager: AbstractFileManager) -> None:
+        self._file_manager = file_manager
 
-    def delete_file(self):
-        ...
+    def delete_file(self, store_root: str, file_name: str):
+
+        path_to_directory = os.path.join(store_root, file_name[:2])
+        path_to_directory1 = self._file_manager.find_path_to_file(path_to_directory, file_name)
+
+        a = self._file_manager.delete_file(path_to_directory1)
+        try:
+            return {"message": f"Файл '{file_name}' удален"}
+        except FileNotFoundError:
+            return {"message": "Файл не найден"}
+
