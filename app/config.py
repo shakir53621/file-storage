@@ -2,7 +2,7 @@ from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseSettings):
+class DatabaseSettings(BaseSettings):
     DMS: str
     DMS_DRIVER: str
     DB_HOST: str
@@ -18,7 +18,15 @@ class Settings(BaseSettings):
         database = f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         return f"{driver}://{user}@{database}"
 
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-settings = Settings()
+class FilesSettings(BaseSettings):
+    root_directory: str
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
+database_settings = DatabaseSettings()
+files_settings = FilesSettings()
+
