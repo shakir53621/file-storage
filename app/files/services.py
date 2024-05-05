@@ -5,7 +5,7 @@ from starlette.responses import FileResponse
 
 from app.file_manager.directory_manager import AbstractDirectoryManager
 from app.file_manager.file_manager import AbstractFileManager
-from app.file_manager.hasher import AbstractHasher
+from app.hasher import AbstractHasher
 
 
 class FileCreatorService:

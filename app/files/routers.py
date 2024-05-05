@@ -2,12 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, UploadFile, Depends
 from fastapi.responses import FileResponse
+from fastapi.security import OAuth2PasswordBearer
 
-from app.constants import STORE_ROOT
+from app.config import files_settings
 from app.file_manager.directory_manager import AbstractDirectoryManager, DirectoryManager
 from app.file_manager.file_manager import AbstractFileManager, FileManager
-from app.file_manager.hasher import AbstractHasher, MD5Hasher
-from app.services import FileCreatorService, FileDownloaderService, FileDeleterService
+from app.hasher import AbstractHasher, MD5Hasher
+from app.files.services import FileCreatorService, FileDownloaderService, FileDeleterService
 
 router = APIRouter(
     prefix="/files",
@@ -29,7 +30,7 @@ async def upload_file(
     )
 
     return file_service.create_file_in_sub_directory(
-        store_root=STORE_ROOT,
+        store_root=files_settings.root_directory,
         file=file,
     )
 
@@ -39,7 +40,6 @@ async def download_file(
         file_name: str,
         file_manager: Annotated[AbstractFileManager, Depends(FileManager)],
 ) -> FileResponse:
-
     file_service = FileDownloaderService(file_manager)
 
     return file_service.download_file(store_root=STORE_ROOT, file_name=file_name)
