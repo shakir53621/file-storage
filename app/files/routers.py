@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, UploadFile, Depends
+from fastapi import APIRouter, UploadFile, Depends, HTTPException, status
 from fastapi.responses import FileResponse
-from fastapi.security import OAuth2PasswordBearer
 
+from app.auth.service import get_user_by_jwt_token
 from app.config import files_settings
+from app.db.models import Users
 from app.file_manager.directory_manager import AbstractDirectoryManager, DirectoryManager
 from app.file_manager.file_manager import AbstractFileManager, FileManager
 from app.hasher import AbstractHasher, MD5Hasher
@@ -22,6 +23,7 @@ async def upload_file(
         hasher: Annotated[AbstractHasher, Depends(MD5Hasher)],
         directory_manager: Annotated[AbstractDirectoryManager, Depends(DirectoryManager)],
         file_manager: Annotated[AbstractFileManager, Depends(FileManager)],
+        current_user: Annotated[Users, Depends(get_user_by_jwt_token)]
 ):
     file_service = FileCreatorService(
         hasher=hasher,
@@ -29,10 +31,13 @@ async def upload_file(
         file_manager=file_manager,
     )
 
-    return file_service.create_file_in_sub_directory(
-        store_root=files_settings.root_directory,
-        file=file,
-    )
+    if current_user:
+        return await file_service.create_file_in_sub_directory(
+            store_root=files_settings.root_directory,
+            file=file,
+            user_id=current_user.user_id
+        )
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @router.get("/download-file")
@@ -42,38 +47,19 @@ async def download_file(
 ) -> FileResponse:
     file_service = FileDownloaderService(file_manager)
 
-    return file_service.download_file(store_root=STORE_ROOT, file_name=file_name)
+    return file_service.download_file(store_root=files_settings.root_directory, file_name=file_name)
 
 
 @router.delete("/delete-file")
 async def delete_file(
         file_name: str,
         file_manager: Annotated[AbstractFileManager, Depends(FileManager)],
+        current_user: Annotated[Users, Depends(get_user_by_jwt_token)]
 ):
     file_service = FileDeleterService(file_manager)
 
-    return file_service.delete_file(store_root=STORE_ROOT, file_name=file_name)
-
-
-"""
-todo:
-    1. Добавить ручку удаления файла
-    2. Отрефакторить ручку download_file (вынести логику в сервис)
-    3. Авторизация на основе БД (поднять базу в докере, настроить .env файл)
-    4. Отдавать JWT токен после авторизации
-    5. Поднять в докере
-"""
-
-"""
-table users:
-    1. user_id
-    2. user_name
-    3. password (hashed)
-
-table files:
-    1. file_id
-    2. user_id
-    3. file_hash
-"""
-
-# 1 | 13 | 4a47a0db6e60853dedfcfdf08a5ca249
+    return await file_service.delete_file(
+        store_root=files_settings.root_directory,
+        file_name=file_name,
+        user_id=current_user.user_id
+    )
