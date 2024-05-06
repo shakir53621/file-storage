@@ -38,8 +38,11 @@ class FileCreatorService:
 
         async with async_session_maker() as session:
             repository = BaseRepository(session, UserFiles)
-            await repository.add(user_id=user_id, file_hash=file_hash)
-            await session.commit()
+            if await repository.find_one_or_none(user_id == UserFiles.user_id, file_hash == UserFiles.file_hash):
+                raise HTTPException(status_code=status.HTTP_423_LOCKED, detail=f"Файл '{file_hash}' уже создан")
+            else:
+                await repository.add(user_id=user_id, file_hash=file_hash)
+                await session.commit()
 
         return file_hash
 
@@ -49,7 +52,7 @@ class FileDownloaderService:
         self._file_manager = file_manager
 
     def download_file(self, store_root: str, file_name: str):
-
+        """Метод находит путь до переданного файла и позволяет скачать его"""
         path_to_directory = os.path.join(store_root, file_name[:2])
         path_to_file = self._file_manager.find_path_to_file(path_to_directory, file_name)
 
@@ -64,17 +67,17 @@ class FileDeleterService:
         self._file_manager = file_manager
 
     async def delete_file(self, store_root: str, file_name: str, user_id: int) -> None:
-
-        async with async_session_maker() as session:
-            repository = BaseRepository(session, UserFiles)
-            if await repository.find_one_or_none(user_id == UserFiles.user_id):
-
+        """Метод позволяет удалить авторизованному пользователю файлы, которые он загрузил"""
+        try:
+            async with async_session_maker() as session:
+                repository = BaseRepository(session, UserFiles)
+                file_id: UserFiles = await repository.find_one_or_none(user_id == UserFiles.user_id, file_name == UserFiles.file_hash)
                 path_to_directory = os.path.join(store_root, file_name[:2])
                 path_to_file = self._file_manager.find_path_to_file(path_to_directory, file_name)
 
-                await repository.delete_one_or_none(file_name == UserFiles.file_hash)
+                await repository.delete_one_or_none(file_id.file_id == UserFiles.file_id)
                 await session.commit()
 
                 self._file_manager.delete_file(path_to_file)
-            else:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        except Exception:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Файл '{file_name}' не найден")
