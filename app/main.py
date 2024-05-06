@@ -1,12 +1,11 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.security import OAuth2PasswordBearer
 
+from app.auth.routers import router as router_auth
 from app.config import files_settings
 from app.file_manager.directory_manager import DirectoryManager
 from app.files.routers import router as router_files
-from app.auth.routers import router as router_auth
 
 
 @asynccontextmanager

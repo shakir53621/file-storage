@@ -1,6 +1,6 @@
 import os
 
-from fastapi import UploadFile, HTTPException, status
+from fastapi import HTTPException, UploadFile, status
 from starlette.responses import FileResponse
 
 from app.db.database import async_session_maker
@@ -40,9 +40,8 @@ class FileCreatorService:
             repository = BaseRepository(session, UserFiles)
             if await repository.find_one_or_none(user_id == UserFiles.user_id, file_hash == UserFiles.file_hash):
                 raise HTTPException(status_code=status.HTTP_423_LOCKED, detail=f"Файл '{file_hash}' уже создан")
-            else:
-                await repository.add(user_id=user_id, file_hash=file_hash)
-                await session.commit()
+            await repository.add(user_id=user_id, file_hash=file_hash)
+            await session.commit()
 
         return file_hash
 
@@ -51,14 +50,14 @@ class FileDownloaderService:
     def __init__(self, file_manager: AbstractFileManager) -> None:
         self._file_manager = file_manager
 
-    def download_file(self, store_root: str, file_name: str):
+    def download_file(self, store_root: str, file_name: str) -> FileResponse:
         """Метод находит путь до переданного файла и позволяет скачать его"""
         path_to_directory = os.path.join(store_root, file_name[:2])
         path_to_file = self._file_manager.find_path_to_file(path_to_directory, file_name)
 
         return FileResponse(
             path=path_to_file, filename=file_name,
-            media_type='multipart/form-data'
+            media_type="multipart/form-data",
         )
 
 
@@ -71,7 +70,8 @@ class FileDeleterService:
         try:
             async with async_session_maker() as session:
                 repository = BaseRepository(session, UserFiles)
-                file_id: UserFiles = await repository.find_one_or_none(user_id == UserFiles.user_id, file_name == UserFiles.file_hash)
+                file_id: UserFiles = await repository.find_one_or_none(user_id == UserFiles.user_id,
+                                                                       file_name == UserFiles.file_hash)
                 path_to_directory = os.path.join(store_root, file_name[:2])
                 path_to_file = self._file_manager.find_path_to_file(path_to_directory, file_name)
 

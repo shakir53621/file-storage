@@ -5,7 +5,7 @@ from app.db.database import Base
 
 
 class Users(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     user_id: Mapped[int] = mapped_column(primary_key=True)
     user_name: Mapped[str]
@@ -13,8 +13,8 @@ class Users(Base):
 
 
 class UserFiles(Base):
-    __tablename__ = 'user_files'
+    __tablename__ = "user_files"
 
     file_id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
     file_hash: Mapped[str]

@@ -3,7 +3,7 @@ import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from fastapi import UploadFile, HTTPException, status
+from fastapi import HTTPException, UploadFile, status
 
 
 class AbstractFileManager(ABC):
@@ -16,7 +16,7 @@ class AbstractFileManager(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def delete_file(self, path_to_file: str):
+    def delete_file(self, path_to_file: str) -> None:
         raise NotImplementedError
 
 

@@ -2,8 +2,7 @@ from pydantic import BaseModel
 
 
 class SchemaUsers(BaseModel):
-    """
-    Схема пользователей
+    """Схема пользователей
 
     Attributes:
 
@@ -16,8 +15,7 @@ class SchemaUsers(BaseModel):
 
 
 class SchemaUserFiles(BaseModel):
-    """
-    Схема файлов пользователей
+    """Схема файлов пользователей
 
     Attributes:
 

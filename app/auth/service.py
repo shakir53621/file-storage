@@ -2,15 +2,14 @@ import datetime
 from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from jose import jwt, JWTError
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
 
 from app.config import auth_settings
 from app.db.database import async_session_maker
 from app.db.models import Users
 from app.db.repository import BaseRepository
-from app.hasher import SHA256Hasher, AbstractHasher
-
+from app.hasher import AbstractHasher, SHA256Hasher
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
@@ -34,7 +33,7 @@ async def get_user_by_user_id(user_id: int) -> Users | None:
 
 async def authenticate_user(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        hasher: Annotated[AbstractHasher, Depends(SHA256Hasher)]
+        hasher: Annotated[AbstractHasher, Depends(SHA256Hasher)],
 ) -> Users:
     user = await get_user_by_username(form_data.username)
 
