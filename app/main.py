@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.security import OAuth2PasswordBearer
 
 from app.config import files_settings
 from app.file_manager.directory_manager import DirectoryManager
