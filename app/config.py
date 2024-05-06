@@ -27,6 +27,14 @@ class FilesSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
+class AuthSettings(BaseSettings):
+    secret_key: str
+    algorithm: str
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
 database_settings = DatabaseSettings()
 files_settings = FilesSettings()
+auth_settings = AuthSettings()
 
