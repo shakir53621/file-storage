@@ -122,9 +122,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
-.env.db
-.env.prod
+#.env ------------Так как это тестовый проект все окружения убрал из gitignore
+#.env.prod
 .venv
 env/
 venv/
