@@ -25,6 +25,7 @@ async def upload_file(
         file_manager: Annotated[AbstractFileManager, Depends(FileManager)],
         current_user: Annotated[Users, Depends(get_user_by_jwt_token)],
 ) -> str:
+    """Эндпоинт для загрузки файла авторизированным пользователем"""
     file_service = FileCreatorService(
         hasher=hasher,
         directory_manager=directory_manager,
@@ -45,6 +46,7 @@ async def download_file(
         file_name: str,
         file_manager: Annotated[AbstractFileManager, Depends(FileManager)],
 ) -> FileResponse:
+    """Эндпоинт для скачивания файла по хэшу от имени файла"""
     file_service = FileDownloaderService(file_manager)
 
     return file_service.download_file(store_root=files_settings.root_directory, file_name=file_name)
@@ -56,6 +58,7 @@ async def delete_file(
         file_manager: Annotated[AbstractFileManager, Depends(FileManager)],
         current_user: Annotated[Users, Depends(get_user_by_jwt_token)],
 ) -> None:
+    """Эндпоинт для удаления файла, который принадлежит пользователю, загрузившему этот файл"""
     file_service = FileDeleterService(file_manager)
 
     return await file_service.delete_file(

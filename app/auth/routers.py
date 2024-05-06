@@ -15,6 +15,7 @@ router = APIRouter(
 
 @router.post("/token")
 async def login_for_access_token(user: Annotated[Users, Depends(authenticate_user)]) -> Token:
+    """Эндпоинт для получения токена по user_id"""
     token = create_token({"user_id": user.user_id})
 
     return Token(access_token=token, token_type=auth_settings.token_type)
