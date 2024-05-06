@@ -9,12 +9,10 @@ class SchemaUsers(BaseModel):
 
         user_id: id пользователя
         user_name: имя пользователя
-        password: пароль пользователя
     """
 
     user_id: int
     user_name: str
-    password: str
 
 
 class SchemaUserFiles(BaseModel):
